@@ -4,6 +4,7 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 from models import RandomForestModel
 from dataset import MoleculeDataset
+import joblib
 
 if __name__ == '__main__':
     train_dataset = MoleculeDataset('../data/D2_7jvr_dop_393b_2comp_final_10M_train_100K_2d_score.sdf')
@@ -20,6 +21,9 @@ if __name__ == '__main__':
     # Get predictions of the docking scores on the validation set
     X_val = np.array(val_dataset.fps)
     y_val_pred = rf_model.predict(X_val)
+
+    # Save the model to a file
+    joblib.dump(rf_model, '100K_model.joblib')
 
     # Write predictions to file
     with open('predictions.txt', 'w') as f:
