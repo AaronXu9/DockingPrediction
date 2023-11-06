@@ -5,7 +5,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=16G
-#SBATCH --time=4:00:00
+#SBATCH --time=12:00:00
 
 module purge
 eval "$(conda shell.bash hook)"
