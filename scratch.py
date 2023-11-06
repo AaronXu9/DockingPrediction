@@ -10,6 +10,7 @@ class FingerprintDataset(Dataset):
         self.h5_file = h5py.File(h5_file, 'r')
         self.fingerprints = self.h5_file['fingerprints']
         self.mols = self.h5_file['mols']
+        
 
     def __len__(self):
         return len(self.fingerprints)
@@ -23,3 +24,4 @@ class FingerprintDataset(Dataset):
         AllChem.Compute2DCoords(mol)
         graph = Chem.MolToMolBlock(mol)
         return fingerprint, graph
+
