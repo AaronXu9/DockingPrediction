@@ -22,7 +22,8 @@ def predict(model_path, dataset_path, output_path='predict.sdf'):
     chunk_size = 1000
     for i in range(0, len(mol_supplier), chunk_size):
         # Get the chunk of molecules
-        chunk = mol_supplier[i:i+chunk_size]
+        for i in range(0, len(mol_supplier), chunk_size):
+            chunk = [mol_supplier[j] for j in range(i, min(i + chunk_size, len(mol_supplier)))]
 
         # Convert the chunk of molecules to fingerprints
         fps = []
