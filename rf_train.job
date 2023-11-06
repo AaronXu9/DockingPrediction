@@ -1,16 +1,14 @@
 #!/bin/bash
 #SBATCH --account=katritch_502
-#SBATCH --partition=gpu
+#SBATCH --partition=main
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --gpus-per-task=a40:1
+#SBATCH --cpus-per-task=8
 #SBATCH --mem=16G
-#SBATCH --time=3:00:00
+#SBATCH --time=4:00:00
 
 module purge
-module load nvhpc/22.11
-module usc
-module load conda
-mamba activate molpal
+eval "$(conda shell.bash hook)"
+# module load conda
+conda activate molpal
 python main.py
