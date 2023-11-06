@@ -47,4 +47,4 @@ def predict(model_path, dataset_path, output_path='predict.sdf'):
     writer.close()
 
 if __name__ == '__main__':
-    predict('100K_model.joblib', 'D2_7jvr_dop_393b_2comp_final_10M_train_100K_2d_score.sdf.sdf')
+    predict('100K_model.joblib', 'D2_7jvr_dop_393b_2comp_final_10M_train_100K_2d_score.sdf')
