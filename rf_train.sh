@@ -11,5 +11,6 @@
 module purge
 module load nvhpc/22.11
 module usc
+module load conda
 mamba activate molpal
 python main.py
