@@ -12,3 +12,4 @@ eval "$(conda shell.bash hook)"
 # module load conda
 conda activate molpal
 python predict.py "$@"
+# ./predict.sdf --output_file=./analysis/top100K_RF_preds.sdf
