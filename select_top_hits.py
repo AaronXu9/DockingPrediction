@@ -19,7 +19,7 @@ def select_top(sdf_file, output_file, score_column='RF_predictions', top=100000)
 
     # Convert 'Score' to numeric and sort the DataFrame by 'Score' in descending order
     df['Score'] = pd.to_numeric(df[score_column], errors='coerce')
-    df_sorted = df.sort_values(score_column, ascending=False)
+    df_sorted = df.sort_values(score_column, ascending=True)
 
     # Select the top 100,000 entries
     top_molecules = df_sorted.head(top)['Molecule']
