@@ -40,3 +40,4 @@ def arg_parse():
 if __name__ == '__main__':
     args = arg_parse()
     select_top(args.sdf_file)
+    # select_top('../data/top_100k.sdf')
