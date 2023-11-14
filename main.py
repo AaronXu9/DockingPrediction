@@ -13,6 +13,15 @@ from models import RandomForestModel
 from dataset import MoleculeDataset
 import joblib
 from rdkit.Chem import SDMolSupplier, SDWriter
+import argparse
+
+def arg_parse():
+    parser = argparse.ArgumentParser(description='Train a random forest model for drug discovery')
+    parser.add_argument('--train_set', type=str, help='Path to the training set')
+    parser.add_argument('--val_set', type=str, help='Path to the validation set')
+    parser.add_argument('--train_size', type=int, default=32, help='Batch size for training')
+    parser.add_argument('--output_path', type=str, default='output', help='Path to save the model and predictions')
+    args = parser.parse_args()
 
 if __name__ == '__main__':
     train_dataset = MoleculeDataset('../data/D2_7jvr_dop_393b_2comp_final_10M_train_100K_2d_score.sdf')
