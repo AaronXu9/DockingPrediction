@@ -13,6 +13,7 @@ from models import RandomForestModel
 from dataset import MoleculeDataset
 import joblib
 from rdkit.Chem import SDMolSupplier, SDWriter
+from sklearn.metrics import mean_squared_error, r2_score
 import argparse
 
 import yaml
@@ -37,11 +38,12 @@ if __name__ == '__main__':
     batch_size = config['model_params']['batch_size']
     train_file = config['data_params']['train_file']
     val_file = config['data_params']['val_file']
+    model_type = config['model_params']['model_type']
     model_output_path = config['model_params']['model_output_path']
     # ... and so on for other parameters
 
-    train_dataset = MoleculeDataset('../data/D2_7jvr_dop_393b_2comp_final_10M_train_100K_2d_score.sdf')
-    val_dataset = MoleculeDataset('../data/D2_7jvr_dop_393b_2comp_final_10M_test_10K.sdf')
+    train_dataset = MoleculeDataset(train_file)
+    val_dataset = MoleculeDataset(val_file)
     # train_loader = DataLoader(train_dataset, batch_size=32,  shuffle=True)
     # val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 
@@ -55,13 +57,21 @@ if __name__ == '__main__':
     X_val = np.array(val_dataset.fps)
     y_val_pred = rf_model.predict(X_val)
 
+    # Compute R square and Q square for validation set
+    r2_train = r2_score(y_train, y_train_pred)
+    q2_train = 1 - mean_squared_error(y_train, y_train_pred) / np.var(y_train)
+
+    r2_val = r2_score(val_dataset.scores, y_val_pred)
+    q2_val = 1 - mean_squared_error(val_dataset.scores, y_val_pred) / np.var(val_dataset.scores)
+
     # Save the model to a file
     joblib.dump(rf_model, model_output_path)
 
-    # Write predictions to file
-    with open('predictions.txt', 'w') as f:
-        for pred in y_val_pred:
-            f.write(str(pred) + '\n')
+    # write the predictions
+    write_results(y_train_pred, train_file, f'train_{len(train_dataset)}_predictions.csv', model_type)
+    write_results(y_val_pred, val_file, f'val_{len(val_dataset)}_predictions.csv', model_type)
+
+    writer.close()
 
 
 

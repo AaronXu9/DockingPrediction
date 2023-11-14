@@ -47,6 +47,7 @@ def extract_features(mols, graphs):
 class MoleculeDataset(Dataset):
     def __init__(self, sdf_file, type='fingerprints'):
         self.mols = []
+        self.ids = []
         self.scores = []
         suppl = Chem.SDMolSupplier(sdf_file)
         self.type = type
@@ -55,6 +56,7 @@ class MoleculeDataset(Dataset):
             if mol is not None:
                 self.mols.append(mol)
                 self.scores.append(float(mol.GetProp('Score')))
+                self.ids.append(mol.GetProp('molid'))
         self.fps = [np.array(AllChem.GetMorganFingerprintAsBitVect(mol, 2)) for mol in self.mols]
         # self.graphs = [mol_to_graph(mol) for mol in self.mols]
 

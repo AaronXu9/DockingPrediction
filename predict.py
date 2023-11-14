@@ -7,6 +7,18 @@ import numpy as np
 from rdkit.Chem import AllChem
 import joblib
 from rdkit.Chem import SDMolSupplier, SDWriter
+import yaml
+
+def load_config(config_file):
+    with open(config_file, 'r') as file:
+        config = yaml.safe_load(file)
+    return config
+
+def arg_parse():
+    parser = argparse.ArgumentParser(description='Train a random forest model for drug discovery')
+    parser.add_argument('--config', dest='config', type=str, default='./config/config.yaml', help='Path to the config file')
+    args = parser.parse_args()
+    return args
 
 def predict(model_path, dataset_path, output_path='predict.sdf'):
     # Load the trained RF model
@@ -48,4 +60,8 @@ def predict(model_path, dataset_path, output_path='predict.sdf'):
     writer.close()
 
 if __name__ == '__main__':
-    predict('100K_model.joblib', '../data/D2_7jvr_dop_393b_2comp_final_10M_train_100K_2d_score.sdf')
+    args = arg_parse()
+    config = load_config(args.config)
+    model = config['model_params']['model_output_path']
+    dataset = config['data_params']['test_file']
+    predict(model, dataset)
