@@ -12,6 +12,9 @@ from torch.utils.data import Dataset, DataLoader
 import random
 import os
 import matplotlib.pyplot as plt
+from fingerprints import compute_fingerprints
+import h5py
+
 # import dgl
 
 # def mol_to_graph(mol):
@@ -56,9 +59,20 @@ class MoleculeDataset(Dataset):
             if mol is not None:
                 self.mols.append(mol)
                 self.scores.append(float(mol.GetProp('Score')))
-                self.ids.append(mol.GetProp('molid'))
-        self.fps = [np.array(AllChem.GetMorganFingerprintAsBitVect(mol, 2)) for mol in self.mols]
-        # self.graphs = [mol_to_graph(mol) for mol in self.mols]
+                self.ids.append(mol.GetProp('full_synton_id'))
+        
+        if not os.path.exists(f"{sdf_file.split('.sdf')[0]}_fingerprints.h5"):
+            compute_fingerprints(sdf_file, 'morgan', f"{sdf_file.split('.sdf')[0]}_fingerprints.h5", )
+            # self.fps = np.array(pd.read_hdf(f"{sdf_file.split('.sdf')[0]}_fingerprints.h5"))
+            # self.fps = [np.array(AllChem.GetMorganFingerprintAsBitVect(mol, 2)) for mol in self.mols]
+        
+        self.fps = []
+        with h5py.File(f"{sdf_file.split('.sdf')[0]}_fingerprints.h5", 'r') as f:
+            for name in f:
+                fp = np.array(f[name])
+                self.fps.append(fp)
+        
+        self.fps = np.array(self.fps)
 
         
     def __len__(self):

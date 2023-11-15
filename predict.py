@@ -7,6 +7,7 @@ import numpy as np
 from rdkit.Chem import AllChem
 import joblib
 from rdkit.Chem import SDMolSupplier, SDWriter
+import utils
 import yaml
 
 def load_config(config_file):
@@ -58,6 +59,7 @@ def predict(model_path, dataset_path, output_path='predict.sdf'):
 
     # Close the SDWriter
     writer.close()
+
 
 if __name__ == '__main__':
     args = arg_parse()

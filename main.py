@@ -17,6 +17,8 @@ from sklearn.metrics import mean_squared_error, r2_score
 import argparse
 
 import yaml
+import utils
+import os
 
 def load_config(config_file):
     with open(config_file, 'r') as file:
@@ -39,7 +41,7 @@ if __name__ == '__main__':
     train_file = config['data_params']['train_file']
     val_file = config['data_params']['val_file']
     model_type = config['model_params']['model_type']
-    model_output_path = config['model_params']['model_output_path']
+    model_output_path = config['output_params']['model_output_path']
     # ... and so on for other parameters
 
     train_dataset = MoleculeDataset(train_file)
@@ -51,7 +53,11 @@ if __name__ == '__main__':
     rf_model = RandomForestModel()
     X_train = np.array(train_dataset.fps)
     y_train = np.array(train_dataset.scores)
-    rf_model.fit(X_train, y_train)
+    if os.path.exists(model_output_path):
+        rf_model = joblib.load(model_output_path)
+    else:
+        rf_model.fit(X_train, y_train)
+    y_train_pred = rf_model.predict(X_train)
 
     # Get predictions of the docking scores on the validation set
     X_val = np.array(val_dataset.fps)
@@ -68,11 +74,14 @@ if __name__ == '__main__':
     joblib.dump(rf_model, model_output_path)
 
     # write the predictions
-    write_results(y_train_pred, train_file, f'train_{len(train_dataset)}_predictions.csv', model_type)
-    write_results(y_val_pred, val_file, f'val_{len(val_dataset)}_predictions.csv', model_type)
+    utils.write_pred_scores_to_sdf(y_train_pred, train_file, f'train_{int(len(train_dataset) / 1000)}K_predictions.sdf', model_type)
+    utils.write_pred_scores_to_sdf(y_val_pred, val_file, f'val_{int(len(val_dataset) / 1000)}K_predictions.sdf', model_type)
 
-    writer.close()
-
+    # write the results in csv as well 
+    csv_path = f"./results/train_{int(len(train_dataset) / 1000)}K_results.csv"
+    utils.write_results_csv(csv_path, train_dataset, y_train_pred, model_type)
+    csv_path = f"./results/val_{int(len(val_dataset) / 1000)}K_results.csv"
+    utils.write_results_csv(csv_path, val_dataset , y_val_pred, model_type)
 
 
 

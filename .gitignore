@@ -7,3 +7,4 @@ __pycache__/
 # Ignore .DS_Store file from VSCode
 .vscode/
 *.DS_Store
+model/

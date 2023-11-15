@@ -34,7 +34,7 @@ def compute_fingerprints_helper(sdf_file, fptype):
         suppl = Chem.ForwardSDMolSupplier(f)
         for mol in suppl:
             if mol is not None:
-                name = mol.GetProp("molid")
+                name = mol.GetProp("full_synton_id")
                 score = float(mol.GetProp('Score'))
                 if fptype == 'morgan':
                     fp = AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=2048)
