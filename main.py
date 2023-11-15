@@ -69,7 +69,10 @@ if __name__ == '__main__':
 
     r2_val = r2_score(val_dataset.scores, y_val_pred)
     q2_val = 1 - mean_squared_error(val_dataset.scores, y_val_pred) / np.var(val_dataset.scores)
-
+    
+    print(f"R2 score on train set: {r2_train}", f"Q2 score on train set: {q2_train}")
+    print(f"R2 score on val set: {r2_val}", f"Q2 score on val set: {q2_val}")
+    
     # Save the model to a file
     joblib.dump(rf_model, model_output_path)
 

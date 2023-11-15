@@ -30,3 +30,10 @@ def write_pred_scores_to_sdf(predictions, orig_sdf_filepath, new_sdf_filepath, m
     for mol in mols:
         writer.write(mol)
     writer.close()
+
+
+def compute_r2_score():
+    return 
+
+def compute_q2_score():
+    return 
