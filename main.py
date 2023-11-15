@@ -27,7 +27,7 @@ def load_config(config_file):
 
 def arg_parse():
     parser = argparse.ArgumentParser(description='Train a random forest model for drug discovery')
-    parser.add_argument('--config', dest='config', type=str, default='./config/config.yaml', help='Path to the config file')
+    parser.add_argument('--config', dest='config', type=str, default='./config/100K_config.yaml', help='Path to the config file')
     args = parser.parse_args()
     return args
 

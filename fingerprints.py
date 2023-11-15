@@ -18,7 +18,6 @@ def compute_fingerprints(sdf_file, fptype, h5_file):
             f.create_dataset(name, data=np.array(fp))
             f[name].attrs['Score'] = score
             
-
 def compute_fingerprints_helper(sdf_file, fptype):
     """
     Computes fingerprints for each molecule in an SDF file.
@@ -34,7 +33,10 @@ def compute_fingerprints_helper(sdf_file, fptype):
         suppl = Chem.ForwardSDMolSupplier(f)
         for mol in suppl:
             if mol is not None:
-                name = mol.GetProp("full_synton_id")
+                if mol.HasProp('molid'):
+                    name = mol.GetProp("molid")
+                else: 
+                    name = mol.GetProp('full_synton_id')
                 score = float(mol.GetProp('Score'))
                 if fptype == 'morgan':
                     fp = AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=2048)
