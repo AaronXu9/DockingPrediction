@@ -1,0 +1,17 @@
+model_params:
+  model_type: RF
+  learning_rate: 0.001
+  batch_size: 32
+  num_epochs: 10
+
+data_params:
+  train_file: ../data/train_100K.sdf
+  val_file: ../data/D2_7jvr_dop_393b_2comp_final_10M_test_10K.sdf
+  test_file: ../data/test_1M.sdf
+  shuffle: false
+  split_ratio: 0.8
+
+output_params:
+  model_output_path: ./model/100K_model.joblib
+  log_output_path: ./logs
+  csv_output_path: ./results/100K_results.csv

@@ -11,4 +11,4 @@ module purge
 eval "$(conda shell.bash hook)"
 # module load conda
 conda activate molpal
-python main.py --config=config.yaml
+python main.py "$@"
