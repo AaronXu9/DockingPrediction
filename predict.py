@@ -9,6 +9,7 @@ import joblib
 from rdkit.Chem import SDMolSupplier, SDWriter
 import utils
 import yaml
+import argparse
 
 def load_config(config_file):
     with open(config_file, 'r') as file:
@@ -21,44 +22,24 @@ def arg_parse():
     args = parser.parse_args()
     return args
 
-def predict(model_path, dataset_path, output_path='predict.sdf'):
+def predict(args):
+    model_path = config['model_params']['model_output_path']
+    dataset_path = config['data_params']['test_file']
+    output_sdf_path = config['output_params']['output_path']
+    output_csv_path = config['output_params']['output_csv_path']
+    test_size = config['data_params']['test_size']
+
     # Load the trained RF model
-    rf_model = joblib.load(model_path)
+    model = joblib.load(model_path)
+    test_dataset = MoleculeDataset(dataset_path)
+    X_test = np.array(test_dataset.fps)
+    y_test = np.array(test_dataset.scores)
+    y_test_pred = model.predict(X_test)
 
-    # Set up the SDMolSupplier to read the large .sdf file in chunks
-    mol_supplier = SDMolSupplier(dataset_path)
-
-    # Set up the SDWriter to write the predicted scores to the .sdf file
-    writer = SDWriter(output_path)
-
-    # Loop over the chunks of molecules
-    chunk_size = 1000
-    for i in range(0, len(mol_supplier), chunk_size):
-        # Get the chunk of molecules
-        for i in range(0, len(mol_supplier), chunk_size):
-            chunk = [mol_supplier[j] for j in range(i, min(i + chunk_size, len(mol_supplier)))]
-
-        # Convert the chunk of molecules to fingerprints
-        fps = []
-        for mol in chunk:
-            if mol is not None:
-                fp = AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=2048)
-                fps.append(fp)
-            else:
-                fps.append(None)
-
-        # Predict the scores for the fingerprints using the trained RF model
-        X = np.array(fps)
-        y_pred = rf_model.predict(X)
-
-        # Write the predicted scores to the .sdf file by adding a new column named "RF_predictions"
-        for mol, score in zip(chunk, y_pred):
-            if mol is not None:
-                mol.SetProp('RF_predictions', str(score))
-                writer.write(mol)
-
-    # Close the SDWriter
-    writer.close()
+    # Write the predictions to a CSV file
+    model_type = config['model_params']['model_type'] + '_' + test_size
+    utils.write_pred_scores_to_sdf(y_test_pred, dataset_path, output_sdf_path, model_type)
+    utils.write_results_csv(output_csv_path, test_dataset, y_test_pred, model_type)
 
 
 if __name__ == '__main__':
@@ -66,4 +47,4 @@ if __name__ == '__main__':
     config = load_config(args.config)
     model = config['model_params']['model_output_path']
     dataset = config['data_params']['test_file']
-    predict(model, dataset)
+    predict(args)

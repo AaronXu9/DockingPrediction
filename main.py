@@ -27,7 +27,7 @@ def load_config(config_file):
 
 def arg_parse():
     parser = argparse.ArgumentParser(description='Train a random forest model for drug discovery')
-    parser.add_argument('--config', dest='config', type=str, default='./config/100K_config.yaml', help='Path to the config file')
+    parser.add_argument('--config', dest='config', type=str, default='./config/config.yaml', help='Path to the config file')
     args = parser.parse_args()
     return args
 
@@ -40,9 +40,10 @@ if __name__ == '__main__':
     batch_size = config['model_params']['batch_size']
     train_file = config['data_params']['train_file']
     val_file = config['data_params']['val_file']
-    model_type = config['model_params']['model_type']
+    train_size = config['data_params']['train_size']
+    model_type = config['model_params']['model_type'] + '_' + train_size
     model_output_path = config['output_params']['model_output_path']
-    # ... and so on for other parameters
+    # ... and so on for other parameters  
 
     train_dataset = MoleculeDataset(train_file)
     val_dataset = MoleculeDataset(val_file)
@@ -56,7 +57,7 @@ if __name__ == '__main__':
     if os.path.exists(model_output_path):
         rf_model = joblib.load(model_output_path)
     else:
-        rf_model.fit(X_train, y_train)
+        rf_model.cv_fit(X_train, y_train)
     y_train_pred = rf_model.predict(X_train)
 
     # Get predictions of the docking scores on the validation set
@@ -72,7 +73,7 @@ if __name__ == '__main__':
     
     print(f"R2 score on train set: {r2_train}", f"Q2 score on train set: {q2_train}")
     print(f"R2 score on val set: {r2_val}", f"Q2 score on val set: {q2_val}")
-    
+
     # Save the model to a file
     joblib.dump(rf_model, model_output_path)
 
@@ -85,7 +86,3 @@ if __name__ == '__main__':
     utils.write_results_csv(csv_path, train_dataset, y_train_pred, model_type)
     csv_path = f"./results/val_{int(len(val_dataset) / 1000)}K_results.csv"
     utils.write_results_csv(csv_path, val_dataset , y_val_pred, model_type)
-
-
-
-

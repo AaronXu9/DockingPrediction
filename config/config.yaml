@@ -10,8 +10,9 @@ data_params:
   test_file: ../data/test_1M.sdf
   shuffle: false
   split_ratio: 0.8
+  train_size: 10K
 
 output_params:
-  model_output_path: ./model/10K_model.joblib
+  model_output_path: ./model/10K_CV_model.joblib
   log_output_path: ./logs
   csv_output_path: ./results/10K_results.csv
