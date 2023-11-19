@@ -1,5 +1,6 @@
 # Ignore files ending with .sdf
 *.sdf
+slurm*
 
 # Ignore __pycache__ directory
 __pycache__/
@@ -8,4 +9,4 @@ __pycache__/
 .vscode/
 *.DS_Store
 model/
-results/
+# results/*.molt

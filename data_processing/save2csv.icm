@@ -1,0 +1,103 @@
+#!bash
+call _startup
+l_commands=no
+errorAction="exit"
+maxMemory = 8000 #Mb, max RAM size to be used by ICM
+
+# root_folder=Path()
+root_folder="/Users/aoxu/projects/DrugDiscovery/AL_Python"
+project_folder="/Users/aoxu/projects/DrugDiscovery/"
+run_folder=root_folder
+
+#data
+molt_name="D2_7jvr_dop_393b_2comp_final_10M_test_10K.molt"
+data_folder=project_folder+"/data/"
+molt_full_path=data_folder+molt_name
+
+# model
+# e.g /Users/aoxu/projects/DrugDiscovery/AL_Python/model/CG_500K/aoxu_nnetregCG_500K_model.icb
+model_name="CG_100K"
+model_dir=run_folder+"/model/"+model_name+"/"
+model_file_name="aoxu_nnetregCG_100K_model.icb"
+model_name="aoxu_nnetregCG_100K_model"
+# results
+result_folder=run_folder+"/results/"
+if(!Exist(result_folder)) sys mkdir $result_folder
+model_type="nnetreg"  #"plsRegression"; "pcRegression"; "nnKernelRegression" ; "randomForestRegression" ; "NeuralNetRegression" 
+result_table_name="test_10K_"+model_name+"_predictions"
+result_file_name=result_table_name + ".molt"
+result_file_path=result_folder+result_file_name
+csv_file_name = result_table_name + ".csv"
+csv_file_path = result_folder + csv_file_name
+
+#open model 
+#model_dir = out_dir+"model/"
+#if(!Exist(model_dir)) print "model folder does not exist"
+model_out = model_dir+model_file_name
+openFile model_out 0 yes no no no " append" 
+
+#Connect molt with full enumeration
+connect molcart filename=molt_full_path
+connectionID=s_out
+
+#calculate size of chunks in full molt database
+chunk_size = 1000
+# table_name = s_out
+table_name = "D2_7jvr_dop_393b_2comp_final_10M_test_10K"
+# pred_name = "Score_predict" 
+query molcart "SELECT COUNT(1) FROM " + s_out name = "molt_count"
+n_of_mols = molt_count.COUNT_1_[1]
+n_chunks = n_of_mols / chunk_size
+
+first_write = false
+if(!Exist(csv_file_path)) first_write = true
+
+TOOLS.useGPU = no
+for i_bins=1,n_chunks
+  #open chunk of full molt file
+  n_start = (i_bins-1)*chunk_size+1
+  n_finish = i_bins*chunk_size
+  sql_query = "SELECT * FROM "+ table_name+ " WHERE molid BETWEEN " + String(n_start) + " AND " + String(n_finish)
+  query molcart sql_query name = table_name
+  
+  #predict Score
+  # predict $table_name $model_name
+  predict $table_name aoxu_nnetregCG_100K
+
+
+  #save new molt table with predicted scores
+  # delete $table_name.Score_predict
+  # rename $table_name.$model_name "Score_predict"
+  # delete $table_name.molid
+  
+  # columns = { "1 chemical    mol", "2 string Molecule_Name", "3 string synton_id_1", "4 string synton_id_2", "5 string synton_id_3", "6 int const_synth", "7 string rxn_ID", "8 int orig_spheres", "9 real orig_Score", "10 real orig_Score2", "11 string orig_Comment", "12 real Score_predict"}
+  # make molcart table $table_name name=result_table_name column = columns filename=result_file_path append
+  # delete $table_name
+
+  # Extract columns for CSV and write
+  # t_csv = $table_name.{molid, full_synton_id, Score, }
+  # Select columns for CSV
+  select column $table_name 'molid'//'full_synton_id'//'Score'
+
+  # Temporary table to hold selected columns
+  t_csv = $table_name
+  # header="molid,mol,MW,synton_id_1,synton_id_2,synton_id_3,const_synth,rxn_ID,orig_spheres,orig_Score,orig_Score2,orig_Comment,Score_predict"
+  if first_write then
+      write table header t_csv csv csv_file_path 
+      first_write = false
+  else
+      write table append t_csv csv csv_file_path
+  endif
+
+endfor
+
+#quit
+
+#load mols with scores less than -30
+# load molcart table train_Scores_D2_7jvr_28_dop_D2_2comp_deep_train_0_01 sort="Score" filter="Score <= -30." find="" number=100
+
+#save as .sdf
+#index .sdf
+
+
+

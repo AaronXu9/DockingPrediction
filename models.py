@@ -17,7 +17,7 @@ class RandomForestModel:
         return self.model.predict(X_test)
     
     def cv_fit(self, X, y, val_set=None, cv=5):
-        scores = cross_val_score(self.model, X, y, cv=cv)
+        # scores = cross_val_score(self.model, X, y, cv=cv)
         self.model.fit(X, y)
         return self.model
 
