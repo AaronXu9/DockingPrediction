@@ -2,7 +2,7 @@
 call _startup
 l_commands=no
 errorAction="exit"
-maxMemory = 16000 #Mb, max RAM size to be used by ICM
+maxMemory = 32000 #Mb, max RAM size to be used by ICM
 
 # icm/def> dir = "/mnt/katritch_lab/Anastasiia/VSYNTHES3_0_092023/D2/rnd_set_1M/"
 input_dir = "/scratch1/aoxu/project/D2/D2_7jvr_dop_393b_2comp_final_10M/rnd_set_1M/"
