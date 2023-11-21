@@ -11,7 +11,7 @@ fn = "D2_7jvr_dop_2comp_final_10M_test_rnd_10pc.molt"
 fn = "D2_7jvr_dop_2comp_final_10M_train_rnd_10pc.molt"
 output_file_name = "train_1M"
 file_path = input_dir + fn
-output_path = output_dir + output_file + ".sdf"
+output_path = output_dir + output_file_name + ".sdf"
 n_train = 1000000
 
 connect molcart filename=file_path
