@@ -86,6 +86,58 @@ class MoleculeDataset(Dataset):
         else:
             raise ValueError('Invalid type')
 
+    def select_top_n_mol(self, predicted_scores, n):
+        """
+        Selects top n molecules based on an external array of predicted scores.
+
+        :param predicted_scores: A numpy array containing the predicted scores.
+        :param n: The number of top molecules to select.
+        :return: A new MoleculeDataset instance with the top n molecules.
+        """
+        if len(predicted_scores) != len(self.mols):
+            raise ValueError("Length of predicted_scores must match the number of molecules in the dataset.")
+
+        # Pair predicted scores with indices
+        score_idx_pairs = list(zip(predicted_scores, range(len(predicted_scores))))
+
+        # Sort the pairs based on scores
+        sorted_pairs = sorted(score_idx_pairs, key=lambda x: x[0])
+
+        # Select top n indices
+        top_n_indices = [idx for _, idx in sorted_pairs[:n]]
+
+        # Create a new dataset with top n molecules
+        top_n_dataset = MoleculeDataset.__new__(MoleculeDataset)
+        top_n_dataset.mols = [self.mols[i] for i in top_n_indices]
+        top_n_dataset.ids = [self.ids[i] for i in top_n_indices]
+        top_n_dataset.scores = [self.scores[i] for i in top_n_indices]
+        top_n_dataset.fps = np.array([self.fps[i] for i in top_n_indices])
+        top_n_dataset.type = self.type
+
+        return top_n_dataset
+
+    def select_top_n_idx(self, predicted_scores, n, exclude_indices=None):
+        """
+        Selects top n molecules based on an external array of predicted scores.
+
+        :param predicted_scores: A numpy array containing the predicted scores.
+        :param n: The number of top molecules to select.
+        :return: A new MoleculeDataset instance with the top n molecules.
+        """
+        if len(predicted_scores) != len(self.mols):
+            raise ValueError("Length of predicted_scores must match the number of molecules in the dataset.")
+
+        # Pair predicted scores with indices
+        score_idx_pairs = [(score, idx) for idx, score in enumerate(predicted_scores) if idx not in exclude_indices]
+
+        # Sort the pairs based on scores
+        sorted_pairs = sorted(score_idx_pairs, key=lambda x: x[0])
+
+        # Select top n indices
+        top_n_indices = [idx for _, idx in sorted_pairs[:n]]
+        
+        return top_n_indices
+
 class LargeMoleculeDataset(Dataset):
     def __init__(self, sdf_file):
         self.sdf_file = sdf_file

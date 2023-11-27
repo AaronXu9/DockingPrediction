@@ -1,4 +1,5 @@
 model_params:
+  model_path: ./model/100K_model.joblib
   model_type: RF
   learning_rate: 0.001
   batch_size: 32
@@ -7,12 +8,13 @@ model_params:
 data_params:
   train_file: ../data/train_10K.sdf
   val_file: ../data/D2_7jvr_dop_393b_2comp_final_10M_test_10K.sdf
-  test_file: ../data/test_1M.sdf
+  test_file: ../data/train_1K.sdf
   shuffle: false
   split_ratio: 0.8
   train_size: 10K
+  test_size: 1K
 
 output_params:
-  model_output_path: ./model/10K_CV_model.joblib
+  model_output_path: ./model/10K_model.joblib
   log_output_path: ./logs
   csv_output_path: ./results/10K_results.csv

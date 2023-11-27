@@ -40,7 +40,8 @@ def predict(args):
     model_type = config['model_params']['model_type'] + '_' + test_size
     utils.write_pred_scores_to_sdf(y_test_pred, dataset_path, output_sdf_path, model_type)
     utils.write_results_csv(output_csv_path, test_dataset, y_test_pred, model_type)
-
+    
+    return y_test_pred
 
 if __name__ == '__main__':
     args = arg_parse()

@@ -55,3 +55,4 @@ class RandomForestModel:
 #             return np.array(scores)
 #         else:
 #             return cross_val_score(self.model, X, y, cv=cv)
+
