@@ -15,5 +15,6 @@ data_params:
 
 output_params:
   model_output_path: ./model/1M_model.joblib
+  output_path: ./results/val_10K_results.sdf
   log_output_path: ./logs
-  csv_output_path: ./results/1M_results.csv
+  csv_output_path: ./results/val_10K_results.csv
