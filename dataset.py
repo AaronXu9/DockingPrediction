@@ -14,20 +14,42 @@ import os
 import matplotlib.pyplot as plt
 from fingerprints import compute_fingerprints
 import h5py
+import dgl
 
-# import dgl
+def mol_to_graph(mol):
+    g = dgl.graph()
 
-# def mol_to_graph(mol):
-#     # Create a graph
-#     g = dgl.DGLGraph()
-#     g.add_nodes(mol.GetNumAtoms())
+    # Add nodes with atom features
+    for atom in mol.GetAtoms():
+        g.add_nodes(1, {'feat': torch.tensor(get_atom_features(atom), dtype=torch.float)})
+
+    # Add edges with bond features
+    for bond in mol.GetBonds():
+        start, end = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
+        g.add_edges(start, end, {'feat': torch.tensor(get_bond_features(bond), dtype=torch.float)})
+        g.add_edges(end, start, {'feat': torch.tensor(get_bond_features(bond), dtype=torch.float)})
     
-#     # Add edges
-#     for bond in mol.GetBonds():
-#         g.add_edges(bond.GetBeginAtomIdx(), bond.GetEndAtomIdx())
-#         g.add_edges(bond.GetEndAtomIdx(), bond.GetBeginAtomIdx())
-    
-#     return g
+    return g
+
+def get_atom_features(atom):
+    # Example: Use atomic number as a feature
+    # You can extend this with more features like atom degree, hybridization, etc.
+    return [atom.GetAtomicNum()]
+
+def get_bond_features(bond):
+    # Example: Use bond type as a feature
+    # Encode bond types as integers (single:1, double:2, triple:3, aromatic:4)
+    bond_type = bond.GetBondType()
+    if bond_type == Chem.rdchem.BondType.SINGLE:
+        return [1]
+    elif bond_type == Chem.rdchem.BondType.DOUBLE:
+        return [2]
+    elif bond_type == Chem.rdchem.BondType.TRIPLE:
+        return [3]
+    elif bond_type == Chem.rdchem.BondType.AROMATIC:
+        return [4]
+    else:
+        return [0]  # Unknown bond type
 
 def atom_features(mol):
     # Example: Use atomic number as feature (other features can be added)
@@ -44,11 +66,11 @@ def extract_features(mols, graphs):
         g.ndata['feat'] = atom_features(mol)
         # For edges, we duplicate the features since each bond results in two edges (undirected graph)
         g.edata['feat'] = torch.cat([bond_features(mol), bond_features(mol)], dim=0)
-    return
+    return g
 
 # Define a custom dataset class
 class MoleculeDataset(Dataset):
-    def __init__(self, sdf_file, type='fingerprints'):
+    def __init__(self, sdf_file, feat_type='fingerprints'):
         self.mols = []
         self.ids = []
         self.scores = []
@@ -61,20 +83,23 @@ class MoleculeDataset(Dataset):
                 self.scores.append(float(mol.GetProp('Score')))
                 self.ids.append(mol.GetProp('full_synton_id'))
         
-        if not os.path.exists(f"{sdf_file.split('.sdf')[0]}_fingerprints.h5"):
-            compute_fingerprints(sdf_file, 'morgan', f"{sdf_file.split('.sdf')[0]}_fingerprints.h5", )
-            # self.fps = np.array(pd.read_hdf(f"{sdf_file.split('.sdf')[0]}_fingerprints.h5"))
-            # self.fps = [np.array(AllChem.GetMorganFingerprintAsBitVect(mol, 2)) for mol in self.mols]
-        
-        self.fps = []
-        with h5py.File(f"{sdf_file.split('.sdf')[0]}_fingerprints.h5", 'r') as f:
-            for name in f:
-                fp = np.array(f[name])
-                self.fps.append(fp)
-        
-        self.fps = np.array(self.fps)
-
-        
+        if feat_type == 'graphs':
+            self.graphs = [mol_to_graph(mol) for mol in self.mols]
+            # self.graphs = extract_features(self.mols, self.graphs)
+        elif feat_type == 'fingerprints':
+            if not os.path.exists(f"{sdf_file.split('.sdf')[0]}_fingerprints.h5"):
+                compute_fingerprints(sdf_file, 'morgan', f"{sdf_file.split('.sdf')[0]}_fingerprints.h5", )
+                # self.fps = np.array(pd.read_hdf(f"{sdf_file.split('.sdf')[0]}_fingerprints.h5"))
+                # self.fps = [np.array(AllChem.GetMorganFingerprintAsBitVect(mol, 2)) for mol in self.mols]
+            
+            self.fps = []
+            with h5py.File(f"{sdf_file.split('.sdf')[0]}_fingerprints.h5", 'r') as f:
+                for name in f:
+                    fp = np.array(f[name])
+                    self.fps.append(fp)
+            
+            self.fps = np.array(self.fps)
+            
     def __len__(self):
         return len(self.mols)
     
@@ -82,7 +107,7 @@ class MoleculeDataset(Dataset):
         if self.type == 'fingerprints':
             return self.fps[idx], self.scores[idx]
         elif self.type == 'graphs':
-            return self.mols[idx], self.scores[idx]
+            return self.graphs[idx], self.scores[idx]
         else:
             raise ValueError('Invalid type')
 
@@ -137,7 +162,31 @@ class MoleculeDataset(Dataset):
         top_n_indices = [idx for _, idx in sorted_pairs[:n]]
         
         return top_n_indices
+    
+    def subsample_indices(self, sample_size, exclude_indices=None):
+        """
+        Generates subsample indices. If exclude_indices is provided, it excludes those indices. 
+        Otherwise, performs random subsampling.
 
+        :param sample_size: The size of the subsample.
+        :param exclude_indices: A list of indices to exclude from the subsampling.
+        :return: A list of indices representing the subsample.
+        """
+        if exclude_indices is None:
+            exclude_indices = []
+        if len(exclude_indices) + sample_size > len(self.mols):
+            raise ValueError("Sample size too large after excluding specified indices.")
+
+        # Generate a set of all indices and remove the excluded indices
+        all_indices = set(range(len(self.mols)))
+        excluded_set = set(exclude_indices)
+        available_indices = list(all_indices - excluded_set)
+
+        # Randomly select indices for subsampling
+        subsample_indices = random.sample(available_indices, sample_size)
+
+        return subsample_indices
+    
 class LargeMoleculeDataset(Dataset):
     def __init__(self, sdf_file):
         self.sdf_file = sdf_file
@@ -154,30 +203,6 @@ class LargeMoleculeDataset(Dataset):
         fp = AllChem.GetMorganFingerprintAsBitVect(mol, 2)
         score = float(mol.GetProp('Score'))
         return mol, fp, score
-
-
-# Define a message-passing neural network model
-class MPNNModel(nn.Module):
-    def __init__(self):
-        super(MPNNModel, self).__init__()
-        self.embedding = nn.Embedding(2048, 128)
-        self.conv1 = nn.Conv2d(1, 128, kernel_size=3, padding=1) # modified input shape
-        self.conv2 = nn.Conv2d(128, 128, kernel_size=3, padding=1)
-        self.fc1 = nn.Linear(128, 64)
-        self.fc2 = nn.Linear(64, 1)
-        
-    def forward(self, x):
-        x = self.embedding(x)
-        x = x.unsqueeze(1) # add a channel dimension
-        x = self.conv1(x)
-        x = nn.functional.relu(x)
-        x = self.conv2(x)
-        x = nn.functional.relu(x)
-        x = x.mean(dim=-1).mean(dim=-1)
-        x = self.fc1(x)
-        x = nn.functional.relu(x)
-        x = self.fc2(x)
-        return x
 
 # Define a function to train the model
 def train(model, train_loader, optimizer, criterion):
@@ -203,7 +228,6 @@ def evaluate(model, val_loader, criterion):
             loss = criterion(output, target.unsqueeze(1))
             val_loss += loss.item()
     return val_loss / len(val_loader)
-
 
 def sample():
     # Define the subsample size
@@ -234,7 +258,8 @@ if __name__ == '__main__':
     val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 
     # Train the message-passing neural network model
-    mpnn_model = MPNNModel()
+    from models import MPNN
+    mpnn_model = MPNN()
     optimizer = optim.Adam(mpnn_model.parameters(), lr=0.001)
     criterion = nn.MSELoss()
     train_losses = []

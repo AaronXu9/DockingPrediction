@@ -1,0 +1,18 @@
+iteration: 0)
+mse score on train set: 29.604905219434166 Q2 score on train set: -0.005299146153869394
+mse score on val set: 34.096496435384516 Q2 score on val set: -0.13206088729646148
+iteration: 1)
+mse score on train set: 29.444832684375243 Q2 score on train set: 0.00013646600650274454
+mse score on val set: 33.08535144691665 Q2 score on val set: -0.0984891772235641
+iteration: 2)
+mse score on train set: 28.769797016406578 Q2 score on train set: 0.02305877484695895
+mse score on val set: 32.73585791028163 Q2 score on val set: -0.08688540544199119
+iteration: 3)
+mse score on train set: 29.49203331576814 Q2 score on train set: -0.0014663344107084253
+mse score on val set: 31.716343086087722 Q2 score on val set: -0.0530358027804374
+iteration: 4)
+mse score on train set: 29.276497677772632 Q2 score on train set: 0.005852648414488293
+mse score on val set: 31.647958580570837 Q2 score on val set: -0.050765322464681795
+Overall
+mse score on train set: 20.177523689103175 Q2 score on train set: 0.3148281615561751
+mse score on val set: 36.57627536178703 Q2 score on val set: -0.21439370811992275

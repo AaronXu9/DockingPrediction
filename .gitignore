@@ -11,3 +11,5 @@ __pycache__/
 model/
 results/*.molt
 results/*.tab
+results/*.csv
+results/*.sdf

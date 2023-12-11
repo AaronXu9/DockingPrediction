@@ -1,5 +1,5 @@
 model_params:
-  model_path: ./model/100K_model.joblib
+  model_path: ./model/AL_xgb_10K_model.joblib
   model_type: RF
   learning_rate: 0.001
   batch_size: 32
@@ -15,6 +15,6 @@ data_params:
   test_size: 1K
 
 output_params:
-  model_output_path: ./model/10K_model.joblib
+  model_output_path: ./model/AL_xgb_10K_model.joblib
   log_output_path: ./logs
-  csv_output_path: ./results/10K_results.csv
+  csv_output_path: ./results/10K_xgb_results.csv

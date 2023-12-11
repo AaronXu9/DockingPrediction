@@ -15,4 +15,5 @@ data_params:
 output_params:
   model_output_path: ./model/10K_model.joblib
   log_output_path: ./logs
+  output_path: ./results/test_10K_results.sdf
   csv_output_path: ./results/test_10K_results.csv
