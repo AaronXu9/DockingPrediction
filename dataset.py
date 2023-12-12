@@ -77,11 +77,15 @@ class MoleculeDataset(Dataset):
         suppl = Chem.SDMolSupplier(sdf_file)
         self.type = type
 
-        for mol in suppl:
+        for i, mol in enumerate(suppl):
             if mol is not None:
                 self.mols.append(mol)
                 self.scores.append(float(mol.GetProp('Score')))
-                self.ids.append(mol.GetProp('full_synton_id'))
+                if mol.HasProp('molid'):
+                    self.ids.append(float(mol.GetProp('molid')))
+                else:
+                    self.ids.append(i)
+                    # self.ids.append(mol.GetProp('full_synton_id'))
         
         if feat_type == 'graphs':
             self.graphs = [mol_to_graph(mol) for mol in self.mols]

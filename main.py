@@ -1,18 +1,8 @@
-import numpy as np
 from torch.utils.data import DataLoader
-from rdkit import Chem
-from rdkit.Chem import AllChem
 from models import RandomForestModel
 from dataset import MoleculeDataset
-import joblib
 import numpy as np
-from torch.utils.data import DataLoader
-from rdkit import Chem
-from rdkit.Chem import AllChem
-from models import RandomForestModel
-from dataset import MoleculeDataset
 import joblib
-from rdkit.Chem import SDMolSupplier, SDWriter
 from sklearn.metrics import mean_squared_error, r2_score
 import argparse
 
@@ -27,7 +17,7 @@ def load_config(config_file):
 
 def arg_parse():
     parser = argparse.ArgumentParser(description='Train a random forest model for drug discovery')
-    parser.add_argument('--config', dest='config', type=str, default='./config/500K_config.yaml', help='Path to the config file')
+    parser.add_argument('--config', dest='config', type=str, default='./config/90K_config.yaml', help='Path to the config file')
     args = parser.parse_args()
     return args
 
@@ -77,7 +67,7 @@ if __name__ == '__main__':
     # Save the model to a file
     joblib.dump(rf_model, model_output_path)
 
-    # write the predictions
+    # write the predictions in sdf
     utils.write_pred_scores_to_sdf(y_train_pred, train_file, f'train_{int(len(train_dataset) / 1000)}K_predictions.sdf', model_type)
     utils.write_pred_scores_to_sdf(y_val_pred, val_file, f'val_{int(len(val_dataset) / 1000)}K_predictions.sdf', model_type)
 

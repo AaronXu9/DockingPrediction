@@ -5,15 +5,16 @@ model_params:
   num_epochs: 10
 
 data_params:
-  train_file: ../data/train_10K.sdf
+  train_file: ../data/diverse_90K.sdf
   val_file: ../data/D2_7jvr_dop_393b_2comp_final_10M_test_10K.sdf
-  test_file: ../data/test_10K.sdf
+  test_file: ../data/test_1M.sdf
   shuffle: false
   split_ratio: 0.8
-  test_size: 500K
+  train_size: 100K
+
 
 output_params:
-  model_output_path: ./model/500K_model.joblib
-  log_output_path: ./logs
+  model_output_path: ./model/diverse_90K_model.joblib
   output_path: ./results/val_10K_results.sdf
+  log_output_path: ./logs
   csv_output_path: ./results/val_10K_results.csv

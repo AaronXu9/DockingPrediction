@@ -31,12 +31,13 @@ def compute_fingerprints_helper(sdf_file, fptype):
     """
     with open(sdf_file, 'rb') as f:
         suppl = Chem.ForwardSDMolSupplier(f)
-        for mol in suppl:
+        for i, mol in enumerate(suppl):
             if mol is not None:
                 if mol.HasProp('molid'):
-                    name = mol.GetProp("molid")
+                    id = mol.GetProp("molid")
                 else: 
-                    name = mol.GetProp('full_synton_id')
+                    # name = mol.GetProp('full_synton_id')
+                    id = str(i)
                 score = float(mol.GetProp('Score'))
                 if fptype == 'morgan':
                     fp = AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=2048)
@@ -46,7 +47,7 @@ def compute_fingerprints_helper(sdf_file, fptype):
                     fp = Chem.MACCSkeys.GenMACCSKeys(mol)
                 else:
                     raise ValueError('Invalid fingerprint type')
-                yield (name, fp, score)
+                yield (id, fp, score)
 
 def test_compute_fingerprints():
     # Generate fingerprints

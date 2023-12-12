@@ -24,7 +24,7 @@ def arg_parse():
 
 def predict(args):
     model_path = config['output_params']['model_output_path']
-    dataset_path = config['data_params']['test_file']
+    dataset_path = config['data_params']['val_file']
     output_sdf_path = config['output_params']['output_path']
     output_csv_path = config['output_params']['csv_output_path']
     test_size = config['data_params']['test_size']

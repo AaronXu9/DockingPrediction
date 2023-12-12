@@ -6,7 +6,7 @@ model_params:
   num_epochs: 10
 
 data_params:
-  train_file: ../data/train_10K.sdf
+  train_file: ../data/train_100K.sdf
   val_file: ../data/D2_7jvr_dop_393b_2comp_final_10M_test_10K.sdf
   test_file: ../data/train_1K.sdf
   shuffle: false
