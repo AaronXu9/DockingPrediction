@@ -28,7 +28,7 @@ def predict(args):
     output_sdf_path = config['output_params']['output_path']
     output_csv_path = config['output_params']['csv_output_path']
     test_size = config['data_params']['test_size']
-
+    train_size = config['data_params']['train_size']
     # Load the trained RF model
     model = joblib.load(model_path)
     test_dataset = MoleculeDataset(dataset_path)
@@ -37,7 +37,7 @@ def predict(args):
     y_test_pred = model.predict(X_test)
 
     # Write the predictions to a CSV file
-    model_type = config['model_params']['model_type'] + '_' + test_size
+    model_type = config['model_params']['model_type'] + '_' + train_size
     utils.write_pred_scores_to_sdf(y_test_pred, dataset_path, output_sdf_path, model_type)
     utils.write_results_csv(output_csv_path, test_dataset, y_test_pred, model_type)
     
