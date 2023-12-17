@@ -30,7 +30,7 @@ class GraphNetwork(nn.Module):
 # Define a random forest model
 class RandomForestModel:
     def __init__(self):
-        self.model = RandomForestRegressor(n_estimators=100, random_state=42)
+        self.model = RandomForestRegressor(n_estimators=200, random_state=42)
         
     def fit(self, X_train, y_train):
         self.model.fit(X_train, y_train)
